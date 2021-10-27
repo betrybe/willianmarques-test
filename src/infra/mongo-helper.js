@@ -23,4 +23,4 @@ class MongoHelper {
 }
 
 const mongoHelper = new MongoHelper();
-export default mongoHelper;
+module.exports = mongoHelper;

@@ -10,6 +10,10 @@ userRouter.post('/users', async (req, res) => {
     res.status(response.statusCode).json(response.body);
 });
 
+userRouter.post('/login', async (req, res) => {
+    res.status(200).json();
+});
+
 userRouter.get('/user', (req, res) => {
     res.send('teste');
 });

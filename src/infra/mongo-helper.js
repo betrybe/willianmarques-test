@@ -1,13 +1,13 @@
 const { MongoClient } = require('mongodb');
-const { default: mongo } = require('../config/mongo');
+const mongoConfig = require('../config/mongo');
 
 class MongoHelper {
     async connect() {
-        this.client = await MongoClient.connect(mongo.MONGO_DB_URL, {
+        this.client = await MongoClient.connect(mongoConfig.MONGO_DB_URL, {
           useNewUrlParser: true,
           useUnifiedTopology: true,
         });
-        this.dataBase = this.client.db(mongo.DB_NAME);
+        this.dataBase = this.client.db(mongoConfig.DB_NAME);
     }
 
     async disconnect() {
@@ -15,7 +15,7 @@ class MongoHelper {
     }
 
     async getCollection(name) {
-        if (!this.client.isConnected() || !this.client) {
+        if (!this.client) {
           await this.connect();
         }
         return this.dataBase.collection(name);

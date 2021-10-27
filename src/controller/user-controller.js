@@ -16,7 +16,7 @@ module.exports = class UserController {
             const user = await this.userService.create(name, email, password);
             return HttpResponse.created(user);
         } catch (error) {
-            return HttpResponse.badRequest(error);
+            return HttpResponse.errorRequest(error);
         }
     }
 };

@@ -11,10 +11,10 @@ module.exports = class UserController {
         try {
             const { name, email, password } = req.body;
             if (!name || !EmailValidator.isValid(email) || !password) {
-                return HttpResponse.badRequest(new InvalidParamsError());
+                return HttpResponse.errorRequest(new InvalidParamsError());
             }
             const user = await this.userService.create(name, email, password);
-            return HttpResponse.created(user);
+            return HttpResponse.created({ user });
         } catch (error) {
             return HttpResponse.errorRequest(error);
         }

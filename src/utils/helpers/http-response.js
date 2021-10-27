@@ -33,7 +33,7 @@ module.exports = class HttpResponse {
       return {
         statusCode,
         body: {
-          error: error.message,
+          message: error.message,
         },
       };
     }
@@ -42,7 +42,7 @@ module.exports = class HttpResponse {
       return {
         statusCode: 401,
         body: {
-          error: new UnauthorizedError().message,
+          message: new UnauthorizedError().message,
         },
       };
     }

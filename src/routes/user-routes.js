@@ -3,7 +3,7 @@ const userControllerFactory = require('../factories/controller/user-controller-f
 
 const userRouter = Router();
 
-userRouter.post('/user', async (req, res) => {
+userRouter.post('/users', async (req, res) => {
     const userController = userControllerFactory();
     const response = await userController.create(req);
     console.log(response);

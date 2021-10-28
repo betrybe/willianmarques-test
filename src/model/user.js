@@ -14,4 +14,10 @@ module.exports = class User {
         const user = await userCollection.findOne({ email });
         return user;
     }
+
+    async findByEmailAndPassword(email, password) {
+        const userCollection = await this.dataBaseHelper.getCollection('users');
+        const user = await userCollection.findOne({ email, password });
+        return user;
+    }
 };

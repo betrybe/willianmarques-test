@@ -1,6 +1,4 @@
-const InvalidParamsError = require('../errors/invalid-params-error');
 const UnauthorizedError = require('../errors/unauthorized-error');
-const UserAlreadyExistsError = require('../errors/user-already-exists-error');
 
 module.exports = class HttpResponse {
     static ok(body) {
@@ -18,20 +16,8 @@ module.exports = class HttpResponse {
     }
   
     static errorRequest(error) {
-      let statusCode = 0;
-      switch (error.constructor) {
-        case UserAlreadyExistsError:
-          statusCode = 409;
-          break;
-        case InvalidParamsError:
-          statusCode = 400;
-          break;
-        default:
-          statusCode = 500;
-          break;
-      }
       return {
-        statusCode,
+        statusCode: error.statusCode,
         body: {
           message: error.message,
         },

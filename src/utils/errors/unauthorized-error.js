@@ -1,6 +1,7 @@
 module.exports = class UnauthorizedError extends Error {
-    constructor() {
-      super('missing auth token');
+    constructor(message) {
+      super(message);
+      this.statusCode = 401;
       this.name = 'Unauthorized Error';
     }
 };

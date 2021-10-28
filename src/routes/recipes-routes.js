@@ -10,4 +10,10 @@ recipesRouter.post('/recipes', ensureAuthenticated, async (req, res) => {
     res.status(response.statusCode).json(response.body);
 });
 
+recipesRouter.get('/recipes', async (req, res) => {
+    const recipesController = recipesControllerFactory();
+    const response = await recipesController.getAll();
+    res.status(response.statusCode).json(response.body);
+});
+
 module.exports = recipesRouter;

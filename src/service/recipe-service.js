@@ -9,6 +9,12 @@ module.exports = class RecipeService {
         const tokenDecoded = decodeToken(token);
         // eslint-disable-next-line no-underscore-dangle
         const userId = tokenDecoded.user._id;
-        return this.recipeModel.create(name, ingredients, preparation, userId);
+        const recipe = await this.recipeModel.create(name, ingredients, preparation, userId);
+        return recipe;
+    }
+
+    async getAll() {
+        const recipes = await this.recipeModel.getAll();
+        return recipes;
     }
 };

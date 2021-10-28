@@ -9,4 +9,10 @@ module.exports = class Recipe {
         const result = await recipesCollection.insertOne(recipe);
         return result.ops[0];
     }
+
+    async getAll() {
+        const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
+        const result = await recipesCollection.find().toArray();
+        return result;
+    }
 };

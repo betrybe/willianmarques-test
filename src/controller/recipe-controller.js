@@ -20,4 +20,13 @@ module.exports = class RecipeController {
             return HttpResponse.errorRequest(error);
         }
     }
+
+    async getAll() {
+        try {
+            const recipes = await this.recipeService.getAll();
+            return HttpResponse.ok(recipes);
+        } catch (error) {
+            return HttpResponse.errorRequest(error);
+        }
+    }
 };

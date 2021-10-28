@@ -1,10 +1,11 @@
-const authConfig = require("../../config/auth-config");
+const jwt = require('jsonwebtoken');
+const authConfig = require('../../config/auth-config');
 
-module.exports = function ensureAuthenticated(req, res, next,){
+module.exports = function ensureAuthenticated(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    throw new Error('JWT token is missing.');
+    res.status(401).json({ message: 'Token is missing' });
   }
 
   const [, token] = authHeader.split(' ');
@@ -13,7 +14,7 @@ module.exports = function ensureAuthenticated(req, res, next,){
     jwt.verify(token, authConfig.secret);
 
     return next();
-  } catch {
-    throw new TokenExpiredError('Invalid JWT token');
+  } catch (error) {
+    res.status(401).json({ message: 'jwt malformed' });
   }
-}
+};

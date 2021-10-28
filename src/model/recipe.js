@@ -1,4 +1,4 @@
-module.exports = class User {
+module.exports = class Recipe {
     constructor(dataBaseHelper) {
         this.dataBaseHelper = dataBaseHelper;
     }

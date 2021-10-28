@@ -6,6 +6,6 @@ const JWTConfig = {
     algorithm: 'HS256',
 };
 
-module.exports = function generateToken(login) {
-    return jwt.sign({ login }, secret, JWTConfig);
+module.exports = function generateToken(user) {    
+    return jwt.sign({ user }, secret, JWTConfig);
 };

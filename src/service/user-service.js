@@ -11,6 +11,7 @@ module.exports = class UserService {
             throw new UserAlreadyExistsError();
         }
         const user = await this.userModel.create(name, email, password);
+        delete user.password;
         return user;
     }
 };

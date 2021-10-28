@@ -8,10 +8,10 @@ module.exports = class LoginService {
     }
 
     async login(email, password) {
-        const userExists = await this.userModel.findByEmailAndPassword(email, password);
-        if (!userExists) {
+        const user = await this.userModel.findByEmailAndPassword(email, password);
+        if (!user) {
             throw new UnauthorizedError(messages.PASS_EMAIL_INCORRECT);
         }
-        return generateToken(email);
+        return generateToken(user);
     }
 };

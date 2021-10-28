@@ -10,8 +10,4 @@ userRouter.post('/users', async (req, res) => {
     res.status(response.statusCode).json(response.body);
 });
 
-userRouter.get('/user', (req, res) => {
-    res.send('teste');
-});
-
 module.exports = userRouter;

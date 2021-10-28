@@ -1,5 +1,3 @@
-const UnauthorizedError = require('../errors/unauthorized-error');
-
 module.exports = class HttpResponse {
     static ok(body) {
       return {
@@ -20,15 +18,6 @@ module.exports = class HttpResponse {
         statusCode: error.statusCode,
         body: {
           message: error.message,
-        },
-      };
-    }
-  
-    static unauthorizedError() {
-      return {
-        statusCode: 401,
-        body: {
-          message: new UnauthorizedError().message,
         },
       };
     }

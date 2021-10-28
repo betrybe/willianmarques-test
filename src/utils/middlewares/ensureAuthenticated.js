@@ -5,7 +5,7 @@ module.exports = function ensureAuthenticated(req, res, next) {
   const token = req.headers.authorization;
 
   if (!token) {
-    res.status(401).json({ message: 'Token is missing' });
+    res.status(401).json({ message: 'missing auth token' });
   }
 
   try {

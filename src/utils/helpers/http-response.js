@@ -15,7 +15,7 @@ module.exports = class HttpResponse {
   
     static errorRequest(error) {
       return {
-        statusCode: error.statusCode,
+        statusCode: error.statusCode || 500,
         body: {
           message: error.message,
         },

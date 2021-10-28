@@ -20,7 +20,16 @@ module.exports = class Recipe {
 
     async getByid(id) {
         const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
-        const recipe = await recipesCollection.findOne(ObjectId(id));
-        return recipe;
+        const result = await recipesCollection.findOne(ObjectId(id));
+        return result;
+    }
+
+    async update(id, name, ingredients, preparation) {
+        const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
+        const query = { _id: ObjectId(id) };
+        const newvalues = { $set: { name, ingredients, preparation } };
+        const opt = { returnOriginal: false };
+        const result = await recipesCollection.findOneAndUpdate(query, newvalues, opt);
+        return result.value;
     }
 };

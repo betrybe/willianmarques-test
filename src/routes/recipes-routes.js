@@ -22,4 +22,10 @@ recipesRouter.get('/recipes/:id', async (req, res) => {
     res.status(response.statusCode).json(response.body);
 });
 
+recipesRouter.put('/recipes/:id', ensureAuthenticated, async (req, res) => {
+    const recipesController = recipesControllerFactory();
+    const response = await recipesController.update(req);
+    res.status(response.statusCode).json(response.body);
+});
+
 module.exports = recipesRouter;

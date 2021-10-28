@@ -39,4 +39,20 @@ module.exports = class RecipeController {
             return HttpResponse.errorRequest(error);
         }
     }
+
+    async update(req) {
+        try {
+            const { id } = req.params;
+            const { name, ingredients, preparation } = req.body;
+            const token = req.headers.authorization;
+            if (!name || !ingredients || !preparation) {
+                throw new InvalidParamsError();
+            }
+            const recipeToUpdate = { id, name, ingredients, preparation, token };
+            const recipe = await this.recipeService.update(recipeToUpdate);
+            return HttpResponse.ok(recipe);
+        } catch (error) {
+            return HttpResponse.errorRequest(error);
+        }
+    }
 };

@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const loginRouter = require('./login-routes');
-const recipesRouter = require('./recipes-controller');
+const recipesRouter = require('./recipes-routes');
 const userRouter = require('./user-routes');
 
 const routerController = Router();

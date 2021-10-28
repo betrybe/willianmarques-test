@@ -1,6 +1,6 @@
 const UnauthorizedError = require('../utils/errors/unauthorized-error');
 const messages = require('../utils/helpers/consts-messages');
-const generateToken = require('../utils/helpers/generate-token');
+const { generateToken } = require('../utils/helpers/token-utils');
 
 module.exports = class LoginService {
     constructor(userModel) {

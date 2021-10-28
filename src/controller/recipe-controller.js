@@ -1,5 +1,6 @@
 const InvalidParamsError = require('../utils/errors/invalid-params-error');
 const HttpResponse = require('../utils/helpers/http-response');
+const { getToken } = require('../utils/helpers/token-utils');
 
 module.exports = class RecipeController {
     constructor(recipeService) {
@@ -9,11 +10,14 @@ module.exports = class RecipeController {
     async create(req) {
         try {
             const { name, ingredients, preparation } = req.body;
+            const authHeader = req.headers.authorization;
             if (!name || !ingredients || !preparation) {
                 throw new InvalidParamsError();
             }
-            this.recipeService = '';
-            return HttpResponse.created({ name, ingredients, preparation });
+            const token = getToken(authHeader);
+            const recipeToCreate = { name, ingredients, preparation, token };
+            const recipe = await this.recipeService.create(recipeToCreate);
+            return HttpResponse.created({ recipe });
         } catch (error) {
             return HttpResponse.errorRequest(error);
         }

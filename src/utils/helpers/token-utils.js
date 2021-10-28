@@ -6,8 +6,7 @@ function generateToken(user) {
 }
 
 function getToken(authorization) {
-    const [, token] = authorization.split(' ');
-    return token;
+    return authorization;
 }
 
 function decodeToken(token) {

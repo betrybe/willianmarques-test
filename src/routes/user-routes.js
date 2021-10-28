@@ -6,7 +6,6 @@ const userRouter = Router();
 userRouter.post('/users', async (req, res) => {
     const userController = userControllerFactory();
     const response = await userController.create(req);
-    console.log(response);
     res.status(response.statusCode).json(response.body);
 });
 

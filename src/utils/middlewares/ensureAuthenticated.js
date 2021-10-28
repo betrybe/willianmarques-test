@@ -1,15 +1,12 @@
 const jwt = require('jsonwebtoken');
 const authConfig = require('../../config/auth-config');
-const { getToken } = require('../helpers/token-utils');
 
 module.exports = function ensureAuthenticated(req, res, next) {
-  const authHeader = req.headers.authorization;
+  const token = req.headers.authorization;
 
-  if (!authHeader) {
+  if (!token) {
     res.status(401).json({ message: 'Token is missing' });
   }
-
-  const token = getToken(authHeader);
 
   try {
     jwt.verify(token, authConfig.secret);

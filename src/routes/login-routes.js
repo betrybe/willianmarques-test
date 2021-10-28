@@ -6,7 +6,6 @@ const loginRouter = Router();
 loginRouter.post('/login', async (req, res) => {
     const loginController = loginControllerFactory();
     const response = await loginController.login(req);
-    console.log(response);
     res.status(response.statusCode).json(response.body);
 });
 

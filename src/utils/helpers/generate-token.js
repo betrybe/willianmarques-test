@@ -1,11 +1,6 @@
 const jwt = require('jsonwebtoken');
-
-const secret = 'tryvevqv';
-const JWTConfig = {
-    expiresIn: '7d',
-    algorithm: 'HS256',
-};
+const authConfig = require('../../config/auth-config');
 
 module.exports = function generateToken(user) {    
-    return jwt.sign({ user }, secret, JWTConfig);
+    return jwt.sign({ user }, authConfig.secret, authConfig.JWTConfig);
 };

@@ -1,3 +1,5 @@
+const authConfig = require("../../config/auth-config");
+
 module.exports = function ensureAuthenticated(req, res, next,){
   const authHeader = req.headers.authorization;
 

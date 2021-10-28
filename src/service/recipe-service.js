@@ -1,3 +1,5 @@
+const { ObjectId } = require('mongodb');
+const NotFoundError = require('../utils/errors/not-found-error');
 const { decodeToken } = require('../utils/helpers/token-utils');
 
 module.exports = class RecipeService {
@@ -16,5 +18,16 @@ module.exports = class RecipeService {
     async getAll() {
         const recipes = await this.recipeModel.getAll();
         return recipes;
+    }
+
+    async getById(id) {
+        if (!ObjectId.isValid(id)) {
+            throw new NotFoundError('recipe not found');
+        }
+        const recipe = await this.recipeModel.getByid(id);
+        if (!recipe) {
+            throw new NotFoundError('recipe not found');
+        }
+        return recipe;
     }
 };

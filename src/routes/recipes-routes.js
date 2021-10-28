@@ -16,4 +16,10 @@ recipesRouter.get('/recipes', async (req, res) => {
     res.status(response.statusCode).json(response.body);
 });
 
+recipesRouter.get('/recipes/:id', async (req, res) => {
+    const recipesController = recipesControllerFactory();
+    const response = await recipesController.getById(req);
+    res.status(response.statusCode).json(response.body);
+});
+
 module.exports = recipesRouter;

@@ -1,3 +1,5 @@
+const { ObjectId } = require('mongodb');
+
 module.exports = class Recipe {
     constructor(dataBaseHelper) {
         this.dataBaseHelper = dataBaseHelper;
@@ -14,5 +16,11 @@ module.exports = class Recipe {
         const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
         const result = await recipesCollection.find().toArray();
         return result;
+    }
+
+    async getByid(id) {
+        const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
+        const recipe = await recipesCollection.findOne(ObjectId(id));
+        return recipe;
     }
 };

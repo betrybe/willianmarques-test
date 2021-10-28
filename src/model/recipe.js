@@ -32,4 +32,10 @@ module.exports = class Recipe {
         const result = await recipesCollection.findOneAndUpdate(query, newvalues, opt);
         return result.value;
     }
+
+    async deleteById(id) {
+        const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
+        const query = { _id: ObjectId(id) };
+        await recipesCollection.deleteOne(query);
+    }
 };

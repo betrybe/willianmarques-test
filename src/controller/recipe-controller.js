@@ -55,4 +55,15 @@ module.exports = class RecipeController {
             return HttpResponse.errorRequest(error);
         }
     }
+
+    async deleteById(req) {
+        try {
+            const { id } = req.params;
+            const token = req.headers.authorization;
+            await this.recipeService.deleteById({ id, token });
+            return HttpResponse.noContent();
+        } catch (error) {
+            return HttpResponse.errorRequest(error);
+        }
+    }
 };

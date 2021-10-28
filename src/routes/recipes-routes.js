@@ -28,4 +28,10 @@ recipesRouter.put('/recipes/:id', ensureAuthenticated, async (req, res) => {
     res.status(response.statusCode).json(response.body);
 });
 
+recipesRouter.delete('/recipes/:id', ensureAuthenticated, async (req, res) => {
+    const recipesController = recipesControllerFactory();
+    const response = await recipesController.deleteById(req);
+    res.status(response.statusCode).json();
+});
+
 module.exports = recipesRouter;

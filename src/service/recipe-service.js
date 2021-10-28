@@ -2,6 +2,7 @@ const { ObjectId } = require('mongodb');
 const NotFoundError = require('../utils/errors/not-found-error');
 const UnauthorizedError = require('../utils/errors/unauthorized-error');
 const { decodeToken } = require('../utils/helpers/token-utils');
+const messages = require('../utils/helpers/consts-messages');
 
 module.exports = class RecipeService {
     constructor(recipeModel) {
@@ -23,32 +24,49 @@ module.exports = class RecipeService {
 
     async getById(id) {
         if (!ObjectId.isValid(id)) {
-            throw new NotFoundError('recipe not found');
+            throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
         const recipe = await this.recipeModel.getByid(id);
         if (!recipe) {
-            throw new NotFoundError('recipe not found');
+            throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
         return recipe;
     }
 
     async update({ id, name, ingredients, preparation, token }) {
         if (!ObjectId.isValid(id)) {
-            throw new NotFoundError('recipe not found');
+            throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
         const recipeExists = await this.recipeModel.getByid(id);
-        console.log(recipeExists);
         if (!recipeExists) {
-            throw new NotFoundError('recipe not found');
+            throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
         const tokenDecoded = decodeToken(token);
         // eslint-disable-next-line no-underscore-dangle
         const userId = tokenDecoded.user._id;
         const { role } = tokenDecoded.user;
         if (!userId === recipeExists.userId && !role === 'admin') {
-            throw new UnauthorizedError('the recipe is not yours');
+            throw new UnauthorizedError(messages.RECIPE_NOT_YOURS);
         }
         const recipe = await this.recipeModel.update(id, name, ingredients, preparation);
         return recipe;
+    }
+
+    async deleteById({ id, token }) {
+        if (!ObjectId.isValid(id)) {
+            throw new NotFoundError(messages.RECIPE_NOTFOUND);
+        }
+        const recipeExists = await this.recipeModel.getByid(id);
+        if (!recipeExists) {
+            throw new NotFoundError(messages.RECIPE_NOTFOUND);
+        }
+        const tokenDecoded = decodeToken(token);
+        // eslint-disable-next-line no-underscore-dangle
+        const userId = tokenDecoded.user._id;
+        const { role } = tokenDecoded.user;
+        if (!userId === recipeExists.userId && !role === 'admin') {
+            throw new UnauthorizedError(messages.RECIPE_NOT_YOURS);
+        }
+        await this.recipeModel.deleteById(id);
     }
 };

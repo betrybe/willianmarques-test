@@ -3,13 +3,13 @@ module.exports = class RecipeService {
         this.recipeModel = recipeModel;
     }
 
-    async create(name, ingredients, preparation, userId) {
+    async create(name, ingredients, preparation, token) {
         this.teste = '';
         return {
             name,
             ingredients,
             preparation,
-            userId,
+            token,
         };
     }
 };

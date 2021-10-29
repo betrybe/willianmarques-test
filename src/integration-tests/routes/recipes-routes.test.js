@@ -483,4 +483,38 @@ describe('Recipes Routes', () => {
             expect(respUpdateImage.body).to.haveOwnProperty('preparation');
         })
     })
+    describe('GET /images/<id-da-receita>.jpeg', () => {
+        it('Deve retornar status 200 e foto se passar a url corretamente', async () => {
+            const login = {
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+
+            const photoFile = path.resolve(__dirname, '../../uploads/ratinho.jpg');
+            const content = fs.createReadStream(photoFile);
+            const respUpdateImage = await chai.request(app)
+            .put(`/recipes/${resPostRecipe.body.recipe._id}/image`)
+            .attach('image', content)
+            .set({ Authorization: token });
+            expect(respUpdateImage).to.have.status(200);
+
+            const resGetPhoto = await chai.request(app)
+            .get(`/images/${resPostRecipe.body.recipe._id}.jpeg`)
+            expect(resGetPhoto).to.have.status(200);
+            expect(resGetPhoto.header).to.haveOwnProperty('content-type').to.be.equal('image/jpeg');
+
+        })
+    })
 });

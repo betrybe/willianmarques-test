@@ -19,4 +19,19 @@ module.exports = class UserController {
             return HttpResponse.errorRequest(error);
         }
     }
+
+    async createAdmin(req) {
+        try {
+            const { name, email, password } = req.body;
+            const token = req.headers.authorization;
+            if (!name || !EmailValidator.isValid(email) || !password) {
+                throw new InvalidParamsError();
+            }
+            const user = await this.userService.createAdmin(name, email, password, token);
+            return HttpResponse.created({ user });
+        } catch (error) {
+            console.log(error);
+            return HttpResponse.errorRequest(error);
+        }
+    }
 };

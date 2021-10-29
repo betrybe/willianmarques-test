@@ -54,4 +54,12 @@ describe('Login Routes', () => {
         expect(res).to.have.status(401);
         expect(res.body.message).to.be.equal('Incorrect username or password');
     })
+    it('Deve retornar 401 se passar o usuario e senha incorretos', async () => {
+        const login = {
+            email: 'willian@email.com', 
+            password: 'admin',
+        }
+        const res = await chai.request(app).post(`/login`).send(login);
+        expect(res).to.have.status(401);
+    })
 });

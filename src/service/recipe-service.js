@@ -19,6 +19,9 @@ module.exports = class RecipeService {
 
     async getAll() {
         const recipes = await this.recipeModel.getAll();
+        if (recipes.length === 0) {
+            throw new NotFoundError(messages.RECIPE_NOTFOUND);
+        }
         return recipes;
     }
 

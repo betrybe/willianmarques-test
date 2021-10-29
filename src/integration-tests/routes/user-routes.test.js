@@ -234,6 +234,27 @@ describe('User Routes (ADMIN)', () => {
             expect(resPostAdmin).to.have.status(401);
             expect(resPostAdmin.body.message).to.be.equal('jwt malformed');
         })
+        it('Deve retornar statusCode 409 ao passar um user existente', async () => {
+            const login = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const user = {
+                name: 'willian2',
+                email: 'willian2@trybe.com',
+                password: '123456'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostAdmin = await chai.request(app).post(`/users/admin`).
+            set({ Authorization: token }).send(user);
+            expect(resPostAdmin).to.have.status(201);
+            const resPostAdminAgain = await chai.request(app).post(`/users/admin`).
+            set({ Authorization: token }).send(user);
+            expect(resPostAdminAgain).to.have.status(409);
+            expect(resPostAdminAgain.body).to.haveOwnProperty('message').to.be.equal('Email already registered');
+        })
     })
 })
 

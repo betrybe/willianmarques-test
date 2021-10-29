@@ -10,10 +10,6 @@ class MongoHelper {
         this.dataBase = this.client.db(mongoConfig.DB_NAME);
     }
 
-    async disconnect() {
-        await this.client.close();
-    }
-
     async getCollection(name) {
         if (!this.client) {
           await this.connect();

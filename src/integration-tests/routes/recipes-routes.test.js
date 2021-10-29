@@ -1,5 +1,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const { ObjectId } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
 const app = require('../../api/app');
@@ -127,6 +128,12 @@ describe('Recipes Routes', () => {
             expect(resGetRecipe).to.have.status(200);
             expect(resGetRecipe.body).to.have.lengthOf(1);
         });
+        it('Deve retornar 404 se nãot tiver nenhum recipe cadastrada', async () => {
+            await recipeModel.deleteMany({});
+            const resGetRecipe = await chai.request(app).get(`/recipes`);
+            console.log(resGetRecipe.body);
+            expect(resGetRecipe).to.have.status(404);
+        });
     })
     describe('Get /recipes/:id', () => {
         it('Deve retornar 200 com a recipe do id que foi passado', async () => {
@@ -150,6 +157,12 @@ describe('Recipes Routes', () => {
         });
         it('Deve retornar 200 com a recipe do id que foi passado', async () => {
             const resGetRecipe = await chai.request(app).get(`/recipes/recipetrybe`);
+            expect(resGetRecipe).to.have.status(404);
+            expect(resGetRecipe.body.message).to.be.equal('recipe not found');
+        });
+        it('Deve retornar 404 ao passar um id não existente', async () => {
+            const id = new ObjectId();
+            const resGetRecipe = await chai.request(app).get(`/recipes/${id}`);
             expect(resGetRecipe).to.have.status(404);
             expect(resGetRecipe.body.message).to.be.equal('recipe not found');
         });
@@ -347,6 +360,48 @@ describe('Recipes Routes', () => {
             .set({ Authorization: tokenAdmin }).send(recipeToUpdate);
             expect(resGetRecipe).to.have.status(200);
         });
+        it('Deve retornar 404 ao passar um id não existente', async () => {
+            const login = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipeToUpdate = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+
+            const id = new ObjectId();
+
+            const resGetRecipe = await chai.request(app).put(`/recipes/${id}`)
+            .set({ Authorization: token }).send(recipeToUpdate);
+            expect(resGetRecipe).to.have.status(404);
+            expect(resGetRecipe.body.message).to.be.equal('recipe not found');
+        });
+        it('Deve retornar 404 ao passar um id inválido', async () => {
+            const login = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipeToUpdate = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+
+            const resGetRecipe = await chai.request(app).put(`/recipes/testetrybe`)
+            .set({ Authorization: token }).send(recipeToUpdate);
+            expect(resGetRecipe).to.have.status(404);
+            expect(resGetRecipe.body.message).to.be.equal('recipe not found');
+        });
     })
     describe('Delete /recipes/:id', () => {
         it('Deve retornar 401 ao passar um token inválido (fora do formato)', async () => {
@@ -358,6 +413,58 @@ describe('Recipes Routes', () => {
             const resDeleteRecipe = await chai.request(app).delete(`/recipes/tryberecipe`)
             .set({ Authorization: '' });
             expect(resDeleteRecipe).to.have.status(401);
+        });
+        it('Deve retornar 404 ao passar um id não existente', async () => {
+            const id = new ObjectId();
+            const login = { 
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+            const resGetRecipe = await chai.request(app).delete(`/recipes/${id}`)
+            .set({ Authorization: token });
+            expect(resGetRecipe).to.have.status(404);
+        });
+        it('Deve retornar 401 ao passar um user não autorizado para deletar', async () => {
+            const id = new ObjectId();
+            const loginAdmin = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const login = { 
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLoginAdmin = await chai.request(app).post(`/login`).send(loginAdmin);
+            expect(resLoginAdmin).to.have.status(200);
+            const tokenAdmin = resLoginAdmin.body.token;
+
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: tokenAdmin }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+
+            const resGetRecipe = await chai.request(app).delete(`/recipes/${resPostRecipe.body.recipe._id}`)
+            .set({ Authorization: token });
+            expect(resGetRecipe).to.have.status(401);
         });
         it('Deve retornar 404 ao passar dados inválidos (id recipe)', async () => {
             const login = { 
@@ -481,6 +588,107 @@ describe('Recipes Routes', () => {
             expect(respUpdateImage.body).to.haveOwnProperty('name');
             expect(respUpdateImage.body).to.haveOwnProperty('ingredients');
             expect(respUpdateImage.body).to.haveOwnProperty('preparation');
+        })
+        it('Deve retornar 404 ao enviar um id não cadastrado', async () => {
+            const id = new ObjectId();
+            const login = {
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const loginAdmin = {
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+
+            const resLoginAdmin = await chai.request(app).post(`/login`).send(loginAdmin);
+            expect(resLoginAdmin).to.have.status(200);
+            const tokenAdmin = resLoginAdmin.body.token;
+
+            const photoFile = path.resolve(__dirname, '../../uploads/ratinho.jpg');
+            const content = fs.createReadStream(photoFile);
+            const respUpdateImage = await chai.request(app)
+            .put(`/recipes/${id}/image`)
+            .attach('image', content)
+            .set({ Authorization: tokenAdmin });
+            expect(respUpdateImage).to.have.status(404);
+        })
+        it('Deve retornar 404 ao enviar um id inválido (fora do formato)', async () => {
+            const login = {
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const loginAdmin = {
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+
+            const resLoginAdmin = await chai.request(app).post(`/login`).send(loginAdmin);
+            expect(resLoginAdmin).to.have.status(200);
+            const tokenAdmin = resLoginAdmin.body.token;
+
+            const photoFile = path.resolve(__dirname, '../../uploads/ratinho.jpg');
+            const content = fs.createReadStream(photoFile);
+            const respUpdateImage = await chai.request(app)
+            .put(`/recipes/trybe/image`)
+            .attach('image', content)
+            .set({ Authorization: tokenAdmin });
+            expect(respUpdateImage).to.have.status(404);
+        })
+        it('Deve retornar 404 ao tentar inserir uma imagem com usuario não autorizado', async () => {
+            const login = {
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const loginAdmin = {
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLoginAdmin = await chai.request(app).post(`/login`).send(loginAdmin);
+            expect(resLoginAdmin).to.have.status(200);
+            const tokenAdmin = resLoginAdmin.body.token;
+
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: tokenAdmin }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+
+            const photoFile = path.resolve(__dirname, '../../uploads/ratinho.jpg');
+            const content = fs.createReadStream(photoFile);
+            const respUpdateImage = await chai.request(app)
+            .put(`/recipes/${resPostRecipe.body.recipe._id}/image`)
+            .attach('image', content)
+            .set({ Authorization: token });
+            expect(respUpdateImage).to.have.status(401);
         })
     })
     describe('GET /images/<id-da-receita>.jpeg', () => {

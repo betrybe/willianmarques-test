@@ -30,7 +30,6 @@ module.exports = class UserController {
             const user = await this.userService.createAdmin(name, email, password, token);
             return HttpResponse.created({ user });
         } catch (error) {
-            console.log(error);
             return HttpResponse.errorRequest(error);
         }
     }

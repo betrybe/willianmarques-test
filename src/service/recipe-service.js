@@ -3,6 +3,7 @@ const NotFoundError = require('../utils/errors/not-found-error');
 const UnauthorizedError = require('../utils/errors/unauthorized-error');
 const { decodeToken } = require('../utils/helpers/token-utils');
 const messages = require('../utils/helpers/consts-messages');
+const validateUserToRecipe = require('../utils/helpers/validate-user-to-recipe');
 
 module.exports = class RecipeService {
     constructor(recipeModel) {
@@ -11,8 +12,7 @@ module.exports = class RecipeService {
 
     async create({ name, ingredients, preparation, token }) {
         const tokenDecoded = decodeToken(token);
-        // eslint-disable-next-line no-underscore-dangle
-        const userId = tokenDecoded.user._id;
+        const userId = Object.keys(tokenDecoded.user)[0];
         const recipe = await this.recipeModel.create(name, ingredients, preparation, userId);
         return recipe;
     }
@@ -41,11 +41,7 @@ module.exports = class RecipeService {
         if (!recipeExists) {
             throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
-        const tokenDecoded = decodeToken(token);
-        // eslint-disable-next-line no-underscore-dangle
-        const userId = tokenDecoded.user._id;
-        const { role } = tokenDecoded.user;
-        if (!userId === recipeExists.userId && !role === 'admin') {
+        if (!validateUserToRecipe(token, recipeExists.userId)) {
             throw new UnauthorizedError(messages.RECIPE_NOT_YOURS);
         }
         const recipe = await this.recipeModel.update(id, name, ingredients, preparation);
@@ -60,11 +56,7 @@ module.exports = class RecipeService {
         if (!recipeExists) {
             throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
-        const tokenDecoded = decodeToken(token);
-        // eslint-disable-next-line no-underscore-dangle
-        const userId = tokenDecoded.user._id;
-        const { role } = tokenDecoded.user;
-        if (!userId === recipeExists.userId && !role === 'admin') {
+        if (!validateUserToRecipe(token, recipeExists.userId)) {
             throw new UnauthorizedError(messages.RECIPE_NOT_YOURS);
         }
         await this.recipeModel.deleteById(id);
@@ -78,11 +70,7 @@ module.exports = class RecipeService {
         if (!recipeExists) {
             throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
-        const tokenDecoded = decodeToken(token);
-        // eslint-disable-next-line no-underscore-dangle
-        const userId = tokenDecoded.user._id;
-        const { role } = tokenDecoded.user;
-        if (!userId === recipeExists.userId && !role === 'admin') {
+        if (!validateUserToRecipe(token, recipeExists.userId)) {
             throw new UnauthorizedError(messages.RECIPE_NOT_YOURS);
         }
         const recipe = await this.recipeModel.updateUrlImage(id, urlImage);

@@ -1,5 +1,7 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const fs = require('fs');
+const path = require('path');
 const app = require('../../api/app');
 const mongoHelper = require('../../infra/mongo-helper');
 const expect = chai.expect;
@@ -409,5 +411,76 @@ describe('Recipes Routes', () => {
             .set({ Authorization: token });
             expect(resGetRecipe).to.have.status(204);
         });
+    })
+    describe('Update /recipes/:id/image', () => {
+        it('Deve retornar 200 ao enviar uma foto estando autenticado como usuário dono da receita', async () => {
+            const login = {
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+            const photoFile = path.resolve(__dirname, '../../uploads/ratinho.jpg');
+            const content = fs.createReadStream(photoFile);
+            const respUpdateImage = await chai.request(app)
+            .put(`/recipes/${resPostRecipe.body.recipe._id}/image`)
+            .attach('image', content)
+            .set({ Authorization: token });
+            expect(respUpdateImage).to.have.status(200);
+            expect(respUpdateImage.body.image).to.be.equal(`localhost:3000/src/uploads/${respUpdateImage.body._id}.jpeg`);
+            expect(respUpdateImage.body).to.haveOwnProperty('_id');
+            expect(respUpdateImage.body).to.haveOwnProperty('userId');
+            expect(respUpdateImage.body).to.haveOwnProperty('name');
+            expect(respUpdateImage.body).to.haveOwnProperty('ingredients');
+            expect(respUpdateImage.body).to.haveOwnProperty('preparation');
+        })
+        it('Deve retornar 200 ao enviar uma foto estando autenticado como usuário admin', async () => {
+            const login = {
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const loginAdmin = {
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+
+            const resLoginAdmin = await chai.request(app).post(`/login`).send(loginAdmin);
+            expect(resLoginAdmin).to.have.status(200);
+            const tokenAdmin = resLoginAdmin.body.token;
+
+            const photoFile = path.resolve(__dirname, '../../uploads/ratinho.jpg');
+            const content = fs.createReadStream(photoFile);
+            const respUpdateImage = await chai.request(app)
+            .put(`/recipes/${resPostRecipe.body.recipe._id}/image`)
+            .attach('image', content)
+            .set({ Authorization: tokenAdmin });
+            expect(respUpdateImage).to.have.status(200);
+            expect(respUpdateImage.body.image).to.be.equal(`localhost:3000/src/uploads/${respUpdateImage.body._id}.jpeg`);
+            expect(respUpdateImage.body).to.haveOwnProperty('_id');
+            expect(respUpdateImage.body).to.haveOwnProperty('userId');
+            expect(respUpdateImage.body).to.haveOwnProperty('name');
+            expect(respUpdateImage.body).to.haveOwnProperty('ingredients');
+            expect(respUpdateImage.body).to.haveOwnProperty('preparation');
+        })
     })
 });

@@ -12,7 +12,7 @@ module.exports = class RecipeService {
 
     async create({ name, ingredients, preparation, token }) {
         const tokenDecoded = decodeToken(token);
-        const userId = Object.keys(tokenDecoded.user)[0];
+        const userId = tokenDecoded.user[Object.keys(tokenDecoded.user)[0]];
         const recipe = await this.recipeModel.create(name, ingredients, preparation, userId);
         return recipe;
     }

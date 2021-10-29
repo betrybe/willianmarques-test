@@ -1,5 +1,6 @@
 const InvalidParamsError = require('../utils/errors/invalid-params-error');
 const HttpResponse = require('../utils/helpers/http-response');
+const getImagePath = require('../utils/helpers/get-image-path');
 
 module.exports = class RecipeController {
     constructor(recipeService) {
@@ -71,10 +72,9 @@ module.exports = class RecipeController {
         try {
             const { id } = req.params;
             const token = req.headers.authorization;
-            console.log(req.file);
-            this.teste = token + id;
-            // await this.recipeService.updateUrlImage({ id, token });
-            return HttpResponse.noContent();
+            const urlImage = getImagePath(req.file.filename);
+            const recipe = await this.recipeService.updateUrlImage({ id, urlImage, token });
+            return HttpResponse.ok(recipe);
         } catch (error) {
             return HttpResponse.errorRequest(error);
         }

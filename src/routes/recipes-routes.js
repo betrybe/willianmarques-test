@@ -40,7 +40,7 @@ upload.single('image'),
 ensureAuthenticated, async (req, res) => {
     const recipesController = recipesControllerFactory();
     const response = await recipesController.updateUrlImage(req);
-    res.status(response.statusCode).json();
+    res.status(response.statusCode).json(response.body);
 });
 
 module.exports = recipesRouter;

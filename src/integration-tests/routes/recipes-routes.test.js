@@ -104,4 +104,52 @@ describe('Recipes Routes', () => {
             expect(resPostRecipe.body.message).to.be.equal('Invalid entries. Try again.');
         })
     })
+    describe('Get /recipes', () => {
+        it('Deve retornar 200 com a lista de recipes cadastradas', async () => {
+            const login = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+            const resGetRecipe = await chai.request(app).get(`/recipes`);
+            expect(resGetRecipe).to.have.status(200);
+            expect(resGetRecipe.body).to.have.lengthOf(1);
+        });
+    })
+    describe('Get /recipes/:id', () => {
+        it('Deve retornar 200 com a recipe do id que foi passado', async () => {
+            const login = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+            const resGetRecipe = await chai.request(app).get(`/recipes/${resPostRecipe.body.recipe._id}`);
+            expect(resGetRecipe).to.have.status(200);
+        });
+        it('Deve retornar 200 com a recipe do id que foi passado', async () => {
+            const resGetRecipe = await chai.request(app).get(`/recipes/recipetrybe`);
+            expect(resGetRecipe).to.have.status(404);
+            expect(resGetRecipe.body.message).to.be.equal('recipe not found');
+        });
+    })
 });

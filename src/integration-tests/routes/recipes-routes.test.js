@@ -152,4 +152,198 @@ describe('Recipes Routes', () => {
             expect(resGetRecipe.body.message).to.be.equal('recipe not found');
         });
     })
+    describe('Put /recipes/:id', () => {
+        it('Deve retornar 401 ao passar um token inválido', async () => {
+            const login = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+            const resGetRecipe = await chai.request(app).put(`/recipes/${resPostRecipe.body.recipe._id}`)
+            .set({ Authorization: 'token' }).send(recipe);
+            expect(resGetRecipe).to.have.status(401);
+        });
+        it('Deve retornar 400 ao passar dados inválidos (name)', async () => {
+            const login = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const recipeToUpdate = {
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+            const resGetRecipe = await chai.request(app).put(`/recipes/${resPostRecipe.body.recipe._id}`)
+            .set({ Authorization: token }).send(recipeToUpdate);
+            expect(resGetRecipe).to.have.status(400);
+        });
+        it('Deve retornar 400 ao passar dados inválidos (ingredients)', async () => {
+            const login = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const recipeToUpdate = {
+                name: 'bolo de fubá',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+            const resGetRecipe = await chai.request(app).put(`/recipes/${resPostRecipe.body.recipe._id}`)
+            .set({ Authorization: token }).send(recipeToUpdate);
+            expect(resGetRecipe).to.have.status(400);
+        });
+        it('Deve retornar 400 ao passar dados inválidos (preparation)', async () => {
+            const login = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const recipeToUpdate = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+            const resGetRecipe = await chai.request(app).put(`/recipes/${resPostRecipe.body.recipe._id}`)
+            .set({ Authorization: token }).send(recipeToUpdate);
+            expect(resGetRecipe).to.have.status(400);
+        });
+        it('Deve retornar 401 ao tentar fazer update em uma receita de outro usuario com role user', async () => {
+            const loginCorrect = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const loginIncorrect = { 
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const recipeToUpdate = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLoginCorrectUser = await chai.request(app).post(`/login`).send(loginCorrect);
+            expect(resLoginCorrectUser).to.have.status(200);
+            const tokenCorrectUser = resLoginCorrectUser.body.token;
+
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: tokenCorrectUser }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+
+            const resLoginIncorrectUser = await chai.request(app).post(`/login`).send(loginIncorrect);
+            expect(resLoginIncorrectUser).to.have.status(200);
+            const tokenIncorrectUser = resLoginIncorrectUser.body.token;
+
+            const resGetRecipe = await chai.request(app).put(`/recipes/${resPostRecipe.body.recipe._id}`)
+            .set({ Authorization: tokenIncorrectUser }).send(recipeToUpdate);
+            expect(resGetRecipe).to.have.status(401);
+        });
+        it('Deve retornar 401 ao tentar fazer update em uma receita sem o token', async () => {
+            const resGetRecipe = await chai.request(app).put(`/recipes/tryberecipe`)
+            .set({ Authorization: '' }).send();
+            expect(resGetRecipe).to.have.status(401);
+        });
+        it('Deve retornar 200 ao passar dados válidos com o user dono da recipe', async () => {
+            const login = { 
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const recipeToUpdate = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+            const resGetRecipe = await chai.request(app).put(`/recipes/${resPostRecipe.body.recipe._id}`)
+            .set({ Authorization: token }).send(recipeToUpdate);
+            expect(resGetRecipe).to.have.status(200);
+        });
+        it('Deve retornar 200 ao passar dados válidos com o user admin', async () => {
+            const login = { 
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const loginAdmin = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const recipeToUpdate = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+
+            const resLoginAdmin = await chai.request(app).post(`/login`).send(loginAdmin);
+            expect(resLoginAdmin).to.have.status(200);
+            const tokenAdmin = resLoginAdmin.body.token;
+
+            const resGetRecipe = await chai.request(app).put(`/recipes/${resPostRecipe.body.recipe._id}`)
+            .set({ Authorization: tokenAdmin }).send(recipeToUpdate);
+            expect(resGetRecipe).to.have.status(200);
+        });
+    })
 });

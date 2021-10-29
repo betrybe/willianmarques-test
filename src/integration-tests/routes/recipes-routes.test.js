@@ -131,7 +131,6 @@ describe('Recipes Routes', () => {
         it('Deve retornar 404 se nãot tiver nenhum recipe cadastrada', async () => {
             await recipeModel.deleteMany({});
             const resGetRecipe = await chai.request(app).get(`/recipes`);
-            console.log(resGetRecipe.body);
             expect(resGetRecipe).to.have.status(404);
         });
     })

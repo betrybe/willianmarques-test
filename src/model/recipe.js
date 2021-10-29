@@ -38,4 +38,13 @@ module.exports = class Recipe {
         const query = { _id: ObjectId(id) };
         await recipesCollection.deleteOne(query);
     }
+
+    async updateUrlImage(id, urlImage) {
+        const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
+        const query = { _id: ObjectId(id) };
+        const newvalues = { $set: { image: urlImage } };
+        const opt = { returnOriginal: false };
+        const result = await recipesCollection.findOneAndUpdate(query, newvalues, opt);
+        return result.value;
+    }
 };

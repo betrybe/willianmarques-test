@@ -1,4 +1,5 @@
 const { Router } = require('express');
+const upload = require('../config/multer-config');
 const recipesControllerFactory = require('../factories/controller/recipes-controller.factory');
 const ensureAuthenticated = require('../utils/middlewares/ensureAuthenticated');
 
@@ -31,6 +32,14 @@ recipesRouter.put('/recipes/:id', ensureAuthenticated, async (req, res) => {
 recipesRouter.delete('/recipes/:id', ensureAuthenticated, async (req, res) => {
     const recipesController = recipesControllerFactory();
     const response = await recipesController.deleteById(req);
+    res.status(response.statusCode).json();
+});
+
+recipesRouter.put('/recipes/:id/image', 
+upload.single('image'), 
+ensureAuthenticated, async (req, res) => {
+    const recipesController = recipesControllerFactory();
+    const response = await recipesController.updateUrlImage(req);
     res.status(response.statusCode).json();
 });
 

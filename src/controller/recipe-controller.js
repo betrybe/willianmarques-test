@@ -66,4 +66,17 @@ module.exports = class RecipeController {
             return HttpResponse.errorRequest(error);
         }
     }
+
+    async updateUrlImage(req) {
+        try {
+            const { id } = req.params;
+            const token = req.headers.authorization;
+            console.log(req.file);
+            this.teste = token + id;
+            // await this.recipeService.updateUrlImage({ id, token });
+            return HttpResponse.noContent();
+        } catch (error) {
+            return HttpResponse.errorRequest(error);
+        }
+    }
 };

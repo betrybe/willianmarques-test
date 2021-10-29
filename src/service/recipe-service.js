@@ -69,4 +69,23 @@ module.exports = class RecipeService {
         }
         await this.recipeModel.deleteById(id);
     }
+
+    async updateUrlImage({ id, urlImage, token }) {
+        if (!ObjectId.isValid(id)) {
+            throw new NotFoundError(messages.RECIPE_NOTFOUND);
+        }
+        const recipeExists = await this.recipeModel.getByid(id);
+        if (!recipeExists) {
+            throw new NotFoundError(messages.RECIPE_NOTFOUND);
+        }
+        const tokenDecoded = decodeToken(token);
+        // eslint-disable-next-line no-underscore-dangle
+        const userId = tokenDecoded.user._id;
+        const { role } = tokenDecoded.user;
+        if (!userId === recipeExists.userId && !role === 'admin') {
+            throw new UnauthorizedError(messages.RECIPE_NOT_YOURS);
+        }
+        const recipe = await this.recipeModel.updateUrlImage(id, urlImage);
+        return recipe;
+    }
 };

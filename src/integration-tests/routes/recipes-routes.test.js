@@ -346,4 +346,68 @@ describe('Recipes Routes', () => {
             expect(resGetRecipe).to.have.status(200);
         });
     })
+    describe('Delete /recipes/:id', () => {
+        it('Deve retornar 401 ao passar um token inválido (fora do formato)', async () => {
+            const resDeleteRecipe = await chai.request(app).delete(`/recipes/tryberecipe`)
+            .set({ Authorization: 'token' });
+            expect(resDeleteRecipe).to.have.status(401);
+        });
+        it('Deve retornar 401 ao passar um token inválido (vazio)', async () => {
+            const resDeleteRecipe = await chai.request(app).delete(`/recipes/tryberecipe`)
+            .set({ Authorization: '' });
+            expect(resDeleteRecipe).to.have.status(401);
+        });
+        it('Deve retornar 404 ao passar dados inválidos (id recipe)', async () => {
+            const login = { 
+                email: 'root@email.com', 
+                password: 'admin'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resDeleteRecipe = await chai.request(app).delete(`/recipes/tryberecipe`)
+            .set({ Authorization: token });
+            expect(resDeleteRecipe).to.have.status(404);
+        });
+        it('Deve retornar 204 ao passar dados válidos para deletar recipe sendo user dono da recipe', async () => {
+            const login = { 
+                email: 'erickjacquin@gmail.com', 
+                password: '12345678',
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+            const resGetRecipe = await chai.request(app).delete(`/recipes/${resPostRecipe.body.recipe._id}`)
+            .set({ Authorization: token });
+            expect(resGetRecipe).to.have.status(204);
+        });
+        it('Deve retornar 204 ao passar dados válidos para deletar recipe sendo user admin', async () => {
+            const login = { 
+                email: 'root@email.com', 
+                password: 'admin',
+            }
+            const recipe = {
+                name: 'bolo de fubá',
+                ingredients: 'arroz, feijão e ovo',
+                preparation: 'cozinhe'
+            }
+            const resLogin = await chai.request(app).post(`/login`).send(login);
+            expect(resLogin).to.have.status(200);
+            const token = resLogin.body.token;
+            const resPostRecipe = await chai.request(app).post(`/recipes`).
+            set({ Authorization: token }).send(recipe);
+            expect(resPostRecipe).to.have.status(201);
+            const resGetRecipe = await chai.request(app).delete(`/recipes/${resPostRecipe.body.recipe._id}`)
+            .set({ Authorization: token });
+            expect(resGetRecipe).to.have.status(204);
+        });
+    })
 });

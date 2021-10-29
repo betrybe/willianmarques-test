@@ -6,7 +6,6 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 let userModel;
-const url = 'http://localhost:3000';
 
 describe('Login Routes', () => {
     before(async () => {

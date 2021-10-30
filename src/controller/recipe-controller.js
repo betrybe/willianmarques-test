@@ -34,7 +34,7 @@ module.exports = class RecipeController {
     async getById(req) {
         try {
             const { id } = req.params;
-            const recipe = await this.recipeService.getById(id);
+            const recipe = await this.recipeService.getById({ id });
             return HttpResponse.ok(recipe);
         } catch (error) {
             return HttpResponse.errorRequest(error);

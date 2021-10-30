@@ -5,7 +5,7 @@ module.exports = class Recipe {
         this.dataBaseHelper = dataBaseHelper;
     }
 
-    async create(name, ingredients, preparation, userId) {
+    async create({ name, ingredients, preparation, userId }) {
         const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
         const recipe = { name, ingredients, preparation, userId };
         const result = await recipesCollection.insertOne(recipe);
@@ -18,13 +18,13 @@ module.exports = class Recipe {
         return result;
     }
 
-    async getByid(id) {
+    async getByid({ id }) {
         const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
         const result = await recipesCollection.findOne(ObjectId(id));
         return result;
     }
 
-    async update(id, name, ingredients, preparation) {
+    async update({ id, name, ingredients, preparation }) {
         const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
         const query = { _id: ObjectId(id) };
         const newvalues = { $set: { name, ingredients, preparation } };
@@ -33,13 +33,13 @@ module.exports = class Recipe {
         return result.value;
     }
 
-    async deleteById(id) {
+    async deleteById({ id }) {
         const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
         const query = { _id: ObjectId(id) };
         await recipesCollection.deleteOne(query);
     }
 
-    async updateUrlImage(id, urlImage) {
+    async updateUrlImage({ id, urlImage }) {
         const recipesCollection = await this.dataBaseHelper.getCollection('recipes');
         const query = { _id: ObjectId(id) };
         const newvalues = { $set: { image: urlImage } };

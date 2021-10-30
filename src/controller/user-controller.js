@@ -13,7 +13,7 @@ module.exports = class UserController {
             if (!name || !EmailValidator.isValid(email) || !password) {
                 throw new InvalidParamsError();
             }
-            const user = await this.userService.create(name, email, password);
+            const user = await this.userService.create({ name, email, password });
             return HttpResponse.created({ user });
         } catch (error) {
             return HttpResponse.errorRequest(error);
@@ -27,7 +27,7 @@ module.exports = class UserController {
             if (!name || !EmailValidator.isValid(email) || !password) {
                 throw new InvalidParamsError();
             }
-            const user = await this.userService.createAdmin(name, email, password, token);
+            const user = await this.userService.createAdmin({ name, email, password, token });
             return HttpResponse.created({ user });
         } catch (error) {
             return HttpResponse.errorRequest(error);

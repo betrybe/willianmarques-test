@@ -7,8 +7,8 @@ module.exports = class LoginService {
         this.userModel = userModel;
     }
 
-    async login(email, password) {
-        const user = await this.userModel.findByEmailAndPassword(email, password);
+    async login({ email, password }) {
+        const user = await this.userModel.findByEmailAndPassword({ email, password });
         if (!user) {
             throw new UnauthorizedError(messages.PASS_EMAIL_INCORRECT);
         }

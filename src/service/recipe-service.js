@@ -13,7 +13,7 @@ module.exports = class RecipeService {
     async create({ name, ingredients, preparation, token }) {
         const tokenDecoded = decodeToken(token);
         const userId = tokenDecoded.user[Object.keys(tokenDecoded.user)[0]];
-        const recipe = await this.recipeModel.create(name, ingredients, preparation, userId);
+        const recipe = await this.recipeModel.create({ name, ingredients, preparation, userId });
         return recipe;
     }
 
@@ -25,11 +25,11 @@ module.exports = class RecipeService {
         return recipes;
     }
 
-    async getById(id) {
+    async getById({ id }) {
         if (!ObjectId.isValid(id)) {
             throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
-        const recipe = await this.recipeModel.getByid(id);
+        const recipe = await this.recipeModel.getByid({ id });
         if (!recipe) {
             throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
@@ -40,14 +40,14 @@ module.exports = class RecipeService {
         if (!ObjectId.isValid(id)) {
             throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
-        const recipeExists = await this.recipeModel.getByid(id);
+        const recipeExists = await this.recipeModel.getByid({ id });
         if (!recipeExists) {
             throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
         if (!validateUserToRecipe(token, recipeExists.userId)) {
             throw new UnauthorizedError(messages.RECIPE_NOT_YOURS);
         }
-        const recipe = await this.recipeModel.update(id, name, ingredients, preparation);
+        const recipe = await this.recipeModel.update({ id, name, ingredients, preparation });
         return recipe;
     }
 
@@ -55,7 +55,7 @@ module.exports = class RecipeService {
         if (!ObjectId.isValid(id)) {
             throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
-        const recipeExists = await this.recipeModel.getByid(id);
+        const recipeExists = await this.recipeModel.getByid({ id });
         if (!recipeExists) {
             throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
@@ -69,14 +69,14 @@ module.exports = class RecipeService {
         if (!ObjectId.isValid(id)) {
             throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
-        const recipeExists = await this.recipeModel.getByid(id);
+        const recipeExists = await this.recipeModel.getByid({ id });
         if (!recipeExists) {
             throw new NotFoundError(messages.RECIPE_NOTFOUND);
         }
         if (!validateUserToRecipe(token, recipeExists.userId)) {
             throw new UnauthorizedError(messages.RECIPE_NOT_YOURS);
         }
-        const recipe = await this.recipeModel.updateUrlImage(id, urlImage);
+        const recipe = await this.recipeModel.updateUrlImage({ id, urlImage });
         return recipe;
     }
 };

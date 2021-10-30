@@ -17,7 +17,7 @@ module.exports = class LoginController {
             if (!EmailValidator.isValid(email)) {
                 throw new UnauthorizedError(messages.PASS_EMAIL_INCORRECT);
             }
-            const token = await this.userService.login(email, password);
+            const token = await this.userService.login({ email, password });
             return HttpResponse.ok({ token });
         } catch (error) {
             return HttpResponse.errorRequest(error);
